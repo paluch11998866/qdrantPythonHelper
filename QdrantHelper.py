@@ -7,25 +7,19 @@ vector_dimension = 1536
 qdrant_url = "localhost:6333"
 
 
-def collection_exists(client: QdrantClient, collection_name: str) -> bool:
-    if client is None:
-        client = QdrantClient(url=Keys.QdrantUrl, timeout=100)
+def collection_exists(collection_name: str, client=QdrantClient(url=qdrant_url, timeout=100)) -> bool:
     collections = client.get_collections().collections
     return any(collection.name == collection_name for collection in collections)
 
 
-def create_collection(client: QdrantClient, collection_name: str, vector_dimension: int):
-    if client is None:
-        client = QdrantClient(url=Keys.QdrantUrl, timeout=100)
+def create_collection(collection_name: str, vector_dimension: int, client=QdrantClient(url=qdrant_url, timeout=100)):
     client.create_collection(collection_name=collection_name,
                              vectors_config=models.VectorParams(size=vector_dimension, distance=models.Distance.COSINE),
                              on_disk_payload=True)
     print(f"Collection '{collection_name}' created successfully.")
 
 
-def check_and_create_collection(client: QdrantClient, collection_name: str, vector_dimension: int):
-    if client is None:
-        client = QdrantClient(url=Keys.QdrantUrl, timeout=100)
+def check_and_create_collection(collection_name: str, vector_dimension: int, client=QdrantClient(url=qdrant_url, timeout=100)):
     if not collection_exists(client, collection_name):
         create_collection(client, collection_name, vector_dimension)
         print(f"Collection '{collection_name}' has been created.")
