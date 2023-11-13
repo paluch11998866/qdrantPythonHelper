@@ -1,10 +1,9 @@
 from qdrant_client.http.models import Batch
-import Infrastucture.AiDevsKeys as Keys
 from qdrant_client.http import models
 from qdrant_client import QdrantClient
 
 vector_dimension = 1536
-qdrant_url = "localhost:6333"
+qdrant_url = "http://localhost:6333"
 
 
 def collection_exists(collection_name: str, client=QdrantClient(url=qdrant_url, timeout=100)) -> bool:
@@ -53,6 +52,15 @@ def upsert_to_collection(collection_name: str, data, client=QdrantClient(url=qdr
     print(collection)
 
 
-def search_data(collection_name: str, vector_search, client=QdrantClient(url=qdrant_url, timeout=100)):
-    result = client.search(collection_name=collection_name, query_vector=vector_search, limit=1)
+def search_data(collection_name: str, query_vector, query_filter=None, limit=1, client=QdrantClient(url=qdrant_url, timeout=100)):
+    if query_filter is None:
+        result = client.search(collection_name=collection_name, query_vector=query_vector, limit=limit)
+    else:
+        result = client.search(collection_name=collection_name, query_vector=query_vector, query_filter=query_filter, limit=limit)
     return result
+    
+
+def scroll_data(collection_name: str, limit=100, offset=None, client=QdrantClient(url=qdrant_url, timeout=100)):
+    result = client.scroll(collection_name=collection_name, limit=limit, offset=offset)
+    return {'collection':result[0], 'offset':result[1]}
+
